@@ -57,7 +57,13 @@ class Question(db.Model):
       'id': self.id,
       'question': self.question,
       'answer': self.answer,
-      'category': self.category,
+      'category': [
+                    {
+                      'id':c.id,
+                      'type':c.type
+                    }
+                   for c in Category.query.filter(Category.id==self.category_id).all()
+                   ],
       'difficulty': self.difficulty
     }
 

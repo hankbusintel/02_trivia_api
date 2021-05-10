@@ -31,12 +31,6 @@ def create_app(test_config=None):
     return jsonify(data)
 
   '''
-  @TODO: 
-  Create an endpoint to handle GET requests for questions, 
-  including pagination (every 10 questions). 
-  This endpoint should return a list of questions, 
-  number of total questions, current category, categories. 
-
   TEST: At this point, when you start the application
   you should see questions and categories generated,
   ten questions per page and pagination at the bottom of the screen for three pages.
@@ -75,22 +69,20 @@ def create_app(test_config=None):
     }])
 
   '''
-  @TODO: 
-  Create an endpoint to DELETE question using a question ID. 
-
   TEST: When you click the trash icon next to a question, the question will be removed.
   This removal will persist in the database and when you refresh the page. 
   '''
   @app.route('/questions/<int:question_id>',methods=['DELETE'])
   def deleteQuestion(question_id):
     try:
-      question = Question.query.get(question_id)
-      question.delete()
-      questions = [question.format() for question in Question]
+      question = Question.query.filter(Question.id==question_id).one_or_none()
+      if question:
+        question.delete()
+      questions = [question.id for question in Question.query.all()]
+      #print (questions)
       return jsonify({
         'success':True,
         'deleted':question_id,
-        'question':questions,
         'total_questions':len(questions)
       })
     except:
@@ -98,14 +90,32 @@ def create_app(test_config=None):
 
   '''
   @TODO: 
-  Create an endpoint to POST a new question, 
-  which will require the question and answer text, 
-  category, and difficulty score.
-
   TEST: When you submit a question on the "Add" tab, 
   the form will clear and the question will appear at the end of the last page
   of the questions list in the "List" tab.  
   '''
+
+  @app.route('/questions',methods=['POST'])
+  def createQuestion():
+    try:
+      new_question = request.get_json()
+      category = Category.query.get(new_question.get('category_id'))
+
+      question = Question(
+        question = new_question.get('question'),
+        answer = new_question.get('answer'),
+        difficulty = new_question.get('difficulty'),
+        category = category
+      )
+      question.insert()
+      questions = [question.id for question in Question.query.all()]
+      print (question.format())
+      return jsonify([{
+        'success':True,
+        'total_questions':len(questions)
+      }])
+    except:
+      abort(404)
 
   '''
   @TODO: 
@@ -117,6 +127,17 @@ def create_app(test_config=None):
   only question that include that string within their question. 
   Try using the word "title" to start. 
   '''
+  @app.route('/question',methods=['Post'])
+  def questionSearch():
+    question = request.get_json()
+    term = question.get('term')
+    questionFilter = Question.question.ilike(f"%{term}%")
+    questions = Question.query.filter(questionFilter).all()
+    data = [q.format() for q in questions]
+    return jsonify([{
+      "success":True,
+      "data":data
+    }])
 
   '''
   @TODO: 
