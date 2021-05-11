@@ -181,14 +181,6 @@ def create_app(test_config=None):
     except:
       abort(422)
 
-
-  '''
-  @TODO: 
-  TEST: In the "Play" tab, after a user selects "All" or a category,
-  one question at a time is displayed, the user is allowed to answer
-  and shown whether they were correct or not. 
-  '''
-
   @app.route('/quizzes',methods=['POST'])
   def playQuiz():
     body = request.get_json()
@@ -205,7 +197,6 @@ def create_app(test_config=None):
 
     try:
       question = random.choice(questions).format()
-      #print (questions)
       return jsonify({
         "success":True,
         "question":question
