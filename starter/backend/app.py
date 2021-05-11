@@ -96,10 +96,7 @@ def create_app(test_config=None):
     except:
       abort(422)
 
-  '''
-  TEST: When you click the trash icon next to a question, the question will be removed.
-  This removal will persist in the database and when you refresh the page. 
-  '''
+
   @app.route('/questions/<int:question_id>',methods=['DELETE'])
   def deleteQuestion(question_id):
 
@@ -118,21 +115,13 @@ def create_app(test_config=None):
     except:
       abort(422)
 
-  '''
-  @TODO: 
-  TEST: When you submit a question on the "Add" tab, 
-  the form will clear and the question will appear at the end of the last page
-  of the questions list in the "List" tab.  
-  '''
-
   @app.route('/questions',methods=['POST'])
   def createQuestion():
 
     new_question = request.get_json()
-    category = Category.query.get(new_question.get('category_id'))
+    category = Category.query.get(new_question.get('category'))
     if not category:
       abort(404)
-
     try:
       question = Question(
         question = new_question.get('question'),
@@ -150,27 +139,26 @@ def create_app(test_config=None):
     except:
       abort(422)
 
-  '''
-  @TODO: 
 
-  TEST: Search by any phrase. The questions list will update to include 
-  only question that include that string within their question. 
-  Try using the word "title" to start. 
-  '''
-  @app.route('/question',methods=['Post'])
+  @app.route('/questionSearch',methods=['POST'])
   def questionSearch():
     question = request.get_json()
-    term = question.get('term')
+    term = question.get('searchTerm')
     questionFilter = Question.question.ilike(f"%{term}%")
     questions = Question.query.filter(questionFilter).all()
+    total_questions = len(Question.query.all())
+
     if not questions:
       abort(404)
     try:
-      data = [q.format() for q in questions]
-      return jsonify([{
+      question_data = [q.format() for q in questions]
+      print (question_data)
+      return jsonify({
         "success":True,
-        "data":data
-      }])
+        "questions":question_data,
+        "total_questions":total_questions,
+        "current_category":None
+      })
     except:
       abort(422)
 
