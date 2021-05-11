@@ -162,29 +162,22 @@ def create_app(test_config=None):
     except:
       abort(422)
 
-  '''
-  @TODO: 
-  TEST: In the "List" tab / main screen, clicking on one of the 
-  categories in the left column will cause only questions of that 
-  category to be shown. 
-  '''
-  @app.route('/categories/<int:category_id>',methods=['GET'])
+
+  @app.route('/categories/<int:category_id>/questions',methods=['GET'])
   def getQuestionByCategories(category_id):
     questions = Question.query.filter(Question.category_id==category_id).all()
     if not questions:
       abort(404)
     try:
-      category = Category.query.get(category_id)
-      category=category.format()
-      category['questions']=[
-        question.format()
-        for question in questions
-      ]
-      return jsonify([{
-          "data":[category],
-          "success":True
+      selected_questions = [q.format() for q in questions]
+      total_questions = len(Question.query.all())
+      return jsonify({
+          "success":True,
+          "questions":selected_questions,
+          "total_questions":total_questions,
+          "current_category":None
          }
-      ])
+      )
     except:
       abort(422)
 
@@ -195,19 +188,24 @@ def create_app(test_config=None):
   one question at a time is displayed, the user is allowed to answer
   and shown whether they were correct or not. 
   '''
+
   @app.route('/quizzes',methods=['POST'])
   def playQuiz():
     body = request.get_json()
-    prev_questions = body.get("prev_questions")
-    category_id = body.get("category_id")
+    prev_questions = body.get("previous_questions")
+    quiz_category= body.get("quiz_category")
+    if quiz_category['id'] !=0:
+      questions = Question.query.filter(Question.category_id==quiz_category['id'])\
+                          .filter(Question.id.notin_(prev_questions)).all()
+    else:
+      questions = Question.query.filter(Question.id.notin_(prev_questions)).all()
 
-    questions = Question.query.filter(Question.category_id==category_id)\
-                        .filter(Question.id.notin_(prev_questions)).all()
     if not questions:
       abort(404)
+
     try:
       question = random.choice(questions).format()
-
+      #print (questions)
       return jsonify({
         "success":True,
         "question":question
