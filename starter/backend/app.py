@@ -6,7 +6,7 @@ import random
 from flask_migrate import Migrate
 from models import setup_db, Question, Category,db
 
-QUESTIONS_PER_PAGE = 10
+
 pagesize = 10
 def Categories():
   list_categories = Category.query.all()
@@ -50,14 +50,6 @@ def create_app(test_config=None):
 
     except:
       abort(422)
-
-  '''
-  TEST: At this point, when you start the application
-  you should see questions and categories generated,
-  ten questions per page and pagination at the bottom of the screen for three pages.
-  Clicking on the page numbers should update the questions. 
-  '''
-
 
 
   @app.route('/questions',methods=["GET"])
@@ -185,7 +177,7 @@ def create_app(test_config=None):
   def playQuiz():
     body = request.get_json()
     prev_questions = body.get("previous_questions")
-    quiz_category= body.get("quiz_category")
+    quiz_category = body.get("quiz_category")
     if quiz_category['id'] !=0:
       questions = Question.query.filter(Question.category_id==quiz_category['id'])\
                           .filter(Question.id.notin_(prev_questions)).all()
