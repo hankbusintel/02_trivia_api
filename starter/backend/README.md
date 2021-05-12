@@ -5,7 +5,7 @@
 1. **Python 3.7** - Follow instructions to install the latest version of python for your platform in the [python docs](https://docs.python.org/3/using/unix.html#getting-and-installing-the-latest-version-of-python)
 
 
-2. **Virtual Enviornment** - We recommend working within a virtual environment whenever using Python for projects. This keeps your dependencies for each project separate and organaized. Instructions for setting up a virual enviornment for your platform can be found in the [python docs](https://packaging.python.org/guides/installing-using-pip-and-virtual-environments/)
+2.  **Enviroment** - For all project related python packages and version can be found from requirements.txt file.
 
 
 3. **PIP Dependencies** - Once you have your virtual environment setup and running, install dependencies by naviging to the `/backend` directory and running:
@@ -28,11 +28,13 @@ With Postgres running, restore a database using the trivia.psql file provided. F
 psql trivia < trivia.psql
 ```
 
+### Run the migration script by entering following command in terminal
+flask db upgrade
+
 ### Running the server
 
-From within the `./src` directory first ensure you are working using your created virtual environment.
 
-To run the server, execute:
+To run the server, in the backend folder execute:
 
 ```bash
 flask run --reload
@@ -40,50 +42,192 @@ flask run --reload
 
 The `--reload` flag will detect file changes and restart the server automatically.
 
-## ToDo Tasks
+## API Documentation
 
-One note before you delve into your tasks: for each endpoint you are expected to define the endpoint and response data. The frontend will be a plentiful resource because it is set up to expect certain endpoints and response data formats already. You should feel free to specify endpoints in your own way; if you do so, make sure to update the frontend or you will get some unexpected behavior. 
+API Reference
+The Trivia Api is based on REST, returns JSON-encoded responses, and returns standard HTTP response codes.
 
-1. Use Flask-CORS to enable cross-domain requests and set response headers. 
-2. Create an endpoint to handle GET requests for questions, including pagination (every 10 questions). This endpoint should return a list of questions, number of total questions, current category, categories. 
-3. Create an endpoint to handle GET requests for all available categories. 
-4. Create an endpoint to DELETE question using a question ID. 
-5. Create an endpoint to POST a new question, which will require the question and answer text, category, and difficulty score. 
-6. Create a POST endpoint to get questions based on category. 
-7. Create a POST endpoint to get questions based on a search term. It should return any questions for whom the search term is a substring of the question. 
-8. Create a POST endpoint to get questions to play the quiz. This endpoint should take category and previous question parameters and return a random questions within the given category, if provided, and that is not one of the previous questions. 
-9. Create error handlers for all expected errors including 400, 404, 422 and 500. 
+**Requests**
+
+*1. GET /questions*
+Optional Parameter: /questions?page=(1,2,3,...), Return page 1 by default. Each page contains 10 questions.
+*Json Response*
+{
+    "categories": {
+    "1": ...
+    "2": ...
+    },
+    "current_category":...,
+    "questions": [
+        {
+        "answer": ...,
+        "category": [
+            {
+            "id": ...,
+            "type": ...
+            }
+        ],
+        "difficulty": ...,
+        "id": ...,
+        "question": ...
+        }
+    ],
+    "success": true,
+    "total_questions": ...
+}
 
 
-## REVIEW_COMMENT
-```
-This README is missing documentation of your endpoints. Below is an example for your endpoint to get all categories. Please use it as a reference for creating your documentation and resubmit your code. 
+*2. GET /categories*
+Return all available categories.
+*Json Response*
+{
+   "categories": {
+   "1": ....,
+   "2": ....,
+   "3": ....
+   },
+   "success": true
+}
 
-Endpoints
-GET '/api/v1.0/categories'
-GET ...
-POST ...
-DELETE ...
+*3. GET /categories/<int:category_id>/questions*
+Get all questions base on selected category
+*Json Response*
+{
+    "current_category": ...,
+    "questions": [
+        {
+        "answer":  ...,
+        "category": [
+            {
+            "id":  ...,
+            "type":  ...
+            }
+        ...
+        ],
+        "difficulty": ...,
+        "id":  ...,
+        "question":  ...
+        }
+    ],
+    "success": true,
+    "total_questions":  ...
+}
 
-GET '/api/v1.0/categories'
-- Fetches a dictionary of categories in which the keys are the ids and the value is the corresponding string of the category
-- Request Arguments: None
-- Returns: An object with a single key, categories, that contains a object of id: category_string key:value pairs. 
-{'1' : "Science",
-'2' : "Art",
-'3' : "Geography",
-'4' : "History",
-'5' : "Entertainment",
-'6' : "Sports"}
+4. POST /questionSearch
+*Payload*
+{"searchTerm":...}
 
-```
+*Json Response*
+{
+    "success":True,
+    "questions":[
+        {
+            "answer":  ...,
+            "category": [
+                {
+                "id":  ...,
+                "type":  ...
+                }
+            ...
+            ],
+            "difficulty": ...,
+            "id":  ...,
+            "question":  ...
+        }
+    ],
+    "total_questions":total_questions,
+    "current_category":null
+}
+
+*5.POST /quizzes*
+*Payload*
+{
+    "previous_questions":[...],
+    "quiz_category":{
+        "id":...,
+        "type":...
+    }
+}
+
+*Json response*
+{
+    "question":[
+        {
+        "answer":  ...,
+        "category": [
+            {
+            "id":  ...,
+            "type":  ...
+            }
+            ...
+        ],
+        "difficulty": ...,
+        "id":  ...,
+        "question":  ...
+        }
+    ]
+    "success":True,
+}
+
+*6. POST /questions*
+*Pay Load*
+{
+    "category":<category_id>,
+    "question":...,
+    "answer":...,
+    "difficulty":...
+}
+
+
+*Json Response*
+{
+    'total_questions':...
+    'success':True
+}
+
+7. DELETE /questions/<int:question_id>
+*Json Response*
+{
+    'success':True,
+    'deleted':<question_id>,
+    'total_questions':...
+}
+
+8. Error Response:
+*404 Not found*
+{
+    "success": False,
+    "error": 404,
+    "message": "resource not found"
+}
+   
+*422 unprocessable*
+{
+    "success": False,
+    "error": 422,
+    "message": "unprocessable"
+}
+
+*400 bad request*
+{
+    "success": False,
+    "error": 400,
+    "message": "bad request"
+}
+
+*405 metod not allow*
+{
+    "success": False,
+    "error": 405,
+    "message": "method not allowed"
+}
 
 
 ## Testing
 To run the tests, run
 ```
-dropdb trivia_test
-createdb trivia_test
-psql trivia_test < trivia.psql
-python test_flaskr.py
+(1) make a copy of the database for trivia:
+CREATE DATABASE trivia_test WITH TEMPLATE trivia
+
+(2) Run the test_flaskr.py script
 ```
