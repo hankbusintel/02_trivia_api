@@ -30,7 +30,7 @@ class Question(db.Model):
   id = Column(Integer, primary_key=True)
   question = Column(String)
   answer = Column(String)
-  category_id = Column(String, db.ForeignKey('categories.id'),nullable=False)
+  category_id = Column(Integer, db.ForeignKey('categories.id'),nullable=False)
   difficulty = Column(Integer)
   category = db.relationship('Category',backref=db.backref('question_category'))
 
